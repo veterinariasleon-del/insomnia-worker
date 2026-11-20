@@ -1,0 +1,11 @@
+# NUNCA claves ni material del canal en el repo
+.env
+*.env
+_claves/
+**/__pycache__/
+*.pyc
+tests/_salida/
+*.mp4
+*.wav
+*.mp3
+*.log

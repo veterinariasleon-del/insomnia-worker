@@ -1,0 +1,33 @@
+# Ejemplo para probar el worker fuera de Easypanel (en el VPS o en una PC con Docker):
+#   docker compose up -d --build
+# Las claves se pasan por variables de entorno (archivo .env que NO se sube al repo).
+services:
+  insomnia-worker:
+    build: .
+    container_name: insomnia-worker
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATA_DIR: /data/leyendas
+      CACHE_DIR: /data/cache
+      TZ: America/Mexico_City
+      WORKER_TOKEN: ${WORKER_TOKEN}
+      ELEVEN_KEY: ${ELEVEN_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-5-5}
+      ANTHROPIC_MODEL_GUION: ${ANTHROPIC_MODEL_GUION:-claude-opus-5-5}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_IMAGE_MODEL: ${GEMINI_IMAGE_MODEL:-gemini-nano-banana-2.1}
+      GEMINI_IMAGE_SIZE: ${GEMINI_IMAGE_SIZE:-2K}
+      WHISPER_MODELO: ${WHISPER_MODELO:-small}
+      # HYPERFRAMES_BROWSER_PATH: /usr/bin/chromium   # solo si HyperFrames no logra descargar su chrome-headless-shell
+    volumes:
+      - insomnia_data:/data
+    shm_size: "1gb"            # Chromium necesita /dev/shm amplio para renderizar 1080p
+    deploy:
+      resources:
+        limits:
+          memory: 7g
+volumes:
+  insomnia_data:
