@@ -1,0 +1,10 @@
+{
+ "_comentario": "Bloques fijos de los prompts de imagen (estilo Pintado nocturno, biblia 04). Se concatenan alrededor de la escena que escribe el modelo. Editable: si cambia el estilo del canal, cambia aquí.",
+ "ESTILO": "STYLE: dark painterly digital illustration, animated-film concept art look, visible brush strokes and soft matte painted texture, shapes defined by light and shadow with NO black ink outlines, dramatic cold moonlight and rim light, muted palette of deep blue, slate and teal with amber as the single warm accent, stylized proportions, soft atmospheric edges, clearly hand-painted. NOT a photo, NOT 3D render, NOT photorealistic, NOT flat vector cartoon.",
+ "PROHIBIDO": "FORBIDDEN: no text, no letters, no logos, no watermark, no signature, no extra people, no duplicated figures, no extra limbs.",
+ "LUZ_NOCHE": "LIGHT: night, cold moonlight from the upper left, deep shadows, low fog drifting near the ground.",
+ "MONSTRUO_REGLA_8": "The terrifying figure must read as demonic while staying painted: gray-green corpse-like skin or skull-like face where visible, amber ember eyes as the ONLY warm accent, a too-wide grin of thin teeth if the mouth shows, long fingers with black nails, tattered clothes merging into the fog; never cute, never cartoon, never gore.",
+ "REFERENCIA_FONDO": "SETTING: plain flat dark gray background (#3a3f4a), nothing else, soft shadow under the feet only. LIGHT: cold moonlight from the upper left with a faint amber rim from the right.",
+ "camaras": ["zoom_in_lento", "zoom_out_lento", "zoom_in_muy_lento", "quieto", "paralaje", "sacudida"],
+ "efectos": ["niebla", "niebla_disuelve", "luciernagas", "vela", "humo", "narrador", "viñeta", "viñeta_leve", "respira_ala"]
+}
