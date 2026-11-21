@@ -98,7 +98,7 @@ def paso_tiktok(ep, slug, pedido, inf):
                 print(f"parte {k}: intento {intento} sin video ({r.returncode})", flush=True)
         v = _verificar_video(out, 1080, 1920)
         if v.get("dbtp") is not None and v["dbtp"] > -0.9: _limitar(out); v = _verificar_video(out, 1080, 1920)
-        if not 100 <= v.get("duracion", 0) <= 215: v["problemas"].append(f"dura {v.get('duracion')} s (1:45–3:30)"); v["ok"] = False
+        if not 60 <= v.get("duracion", 0) <= 595: v["problemas"].append(f"dura {v.get('duracion')} s (1 a 9:55 min; TikTok publica solo hasta 10 min)"); v["ok"] = False
         res[f"parte{k}"] = v
         if not v["ok"]: inf["problemas"].append(f"tiktok parte {k}: {v.get('problemas') or v.get('problema')}")
     inf["tiktok"] = res
@@ -139,6 +139,17 @@ def paso_hoja_contacto(ep, slug, pedido, inf):
     inf["hojas"] = hojas
 
 
+LIMITE_MB = 470   # Metricool: 500 MB por video; se deja margen
+
+
+def _comprimir(src, dst):
+    """H.264 a la tasa justa para quedar debajo de LIMITE_MB (audio AAC 192k intacto en nivel)."""
+    d = ffprobe_dur(src); kbps = int((LIMITE_MB * 8e3) / max(d, 1) - 220)
+    correr(["ffmpeg", "-y", "-loglevel", "error", "-i", src, "-c:v", "libx264", "-preset", "medium", "-b:v", f"{kbps}k", "-maxrate", f"{int(kbps*1.3)}k",
+            "-bufsize", f"{kbps*2}k", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", dst], timeout=4 * 3600)
+    if os.path.getsize(dst) > 500e6: raise RuntimeError(f"tras comprimir sigue pesando {os.path.getsize(dst)/1e6:.0f} MB")
+
+
 def paso_paquete(ep, slug, pedido, inf):
     """Copia (con MD5) cada pieza a _salida/publicar/<red>/<carpeta>/ según el plan que escribió Claude. Nunca borra."""
     hechas = []
@@ -148,6 +159,10 @@ def paso_paquete(ep, slug, pedido, inf):
         for nombre, rel in pieza["archivos"].items():
             src = os.path.join(ep, rel); dst = os.path.join(carpeta, nombre)
             if not os.path.exists(src): faltan.append(rel); continue
+            if src.endswith(".mp4") and os.path.getsize(src) > LIMITE_MB * 1e6:
+                if not os.path.exists(dst):   # Metricool acepta hasta 500 MB por video: se recomprime sin tocar el original
+                    _comprimir(src, dst + ".parcial.mp4"); os.replace(dst + ".parcial.mp4", dst)
+                continue
             if os.path.exists(dst) and md5(dst) == md5(src): continue
             shutil.copyfile(src, dst + ".parcial")
             if md5(dst + ".parcial") != md5(src): raise RuntimeError(f"MD5 distinto al copiar {rel}")
