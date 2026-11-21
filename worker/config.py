@@ -17,7 +17,9 @@ ELEVEN_KEY = os.environ.get("ELEVEN_KEY", "")
 HYPERFRAMES_VERSION = os.environ.get("HYPERFRAMES_VERSION", "0.9.13")
 TZ = os.environ.get("TZ", "America/Mexico_City")
 VERSION = "0.2.0"
-REMOTO = os.environ.get("REMOTO", "drive:Insomnia-VPS")   # carpeta de Drive compartida con la PC (rclone)
+REMOTO = os.environ.get("REMOTO", "drive:Insomnia-VPS")   # salida: carpeta de Drive (Mi unidad) que lee Metricool
+# entrada y pedidos: la carpeta _vps de la PC sincronizada por Drive para escritorio (sección "Ordenadores"); solo se LEE
+ENTRADA_REMOTO = os.environ.get("ENTRADA_REMOTO", "drive,root_folder_id=1X11O_jWOWb-iqN2VAjRYjSVPBlT532--:")
 BUZON_MINUTOS = int(os.environ.get("BUZON_MINUTOS", "10"))
 
 def entorno_scripts():

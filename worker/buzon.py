@@ -1,6 +1,7 @@
 """Buzón de Drive: el puente entre la PC de Jaime (tarea programada de Claude) y el VPS, sin HTTP ni SSH.
 
 Carpeta compartida en Google Drive (REMOTO, por defecto drive:Insomnia-VPS):
+  (entrada/ y pedidos/ viven en la carpeta _vps de la PC, sincronizada por Drive para escritorio: ENTRADA_REMOTO; el VPS solo la lee)
   entrada/   lo que la tarea deja para el VPS: herramientas/, marca/, perfil/ y contenido/videos/<slug>/ (sin .mp4/.wav)
   pedidos/   un JSON por pedido (formato en worker/etapas/lote.py); al terminar se mueve a pedidos/hechos/
   salida/    lo que el VPS devuelve: publicar/<red>/<carpeta>/ (videos, textos, miniaturas), <slug>/informe.json, hojas de contacto
@@ -36,9 +37,9 @@ def latido(extra=None):
 
 def bajar():
     # .mp4 y .wav nunca viajan hacia el VPS: los videos se hacen aquí y los audios de trabajo no hacen falta
-    rclone("copy", f"{C.REMOTO}/entrada", C.DATA_DIR, "--exclude", "*.mp4", "--exclude", "*.wav", "--exclude", "_claves/**", "--update")
+    rclone("copy", f"{C.ENTRADA_REMOTO}entrada", C.DATA_DIR, "--exclude", "*.mp4", "--exclude", "*.wav", "--exclude", "_claves/**", "--update")
     os.makedirs(os.path.join(LOCAL_PED(), "nuevos"), exist_ok=True)
-    rclone("copy", f"{C.REMOTO}/pedidos", os.path.join(LOCAL_PED(), "nuevos"), "--max-depth", "1", "--include", "*.json")
+    rclone("copy", f"{C.ENTRADA_REMOTO}pedidos", os.path.join(LOCAL_PED(), "nuevos"), "--max-depth", "1", "--include", "*.json")
 
 
 def subir():
@@ -63,7 +64,8 @@ def procesar(nombre):
                            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))), env=C.entorno_scripts(), stdout=lf, stderr=subprocess.STDOUT)
     os.makedirs(os.path.join(LOCAL_PED(), "hechos"), exist_ok=True); shutil.copyfile(ruta, os.path.join(LOCAL_PED(), "hechos", nombre))
     subir()
-    rclone("moveto", f"{C.REMOTO}/pedidos/{nombre}", f"{C.REMOTO}/pedidos/hechos/{nombre}", check=False)
+    # la carpeta de la PC solo se lee; el aviso de "hecho" queda en salida/<slug>/informe.json y salida/pedidos_hechos/
+    rclone("copyto", ruta, f"{C.REMOTO}/salida/pedidos_hechos/{nombre}", check=False)
     return r.returncode
 
 
